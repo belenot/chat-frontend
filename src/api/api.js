@@ -28,5 +28,18 @@ export const api = {
             }
         }
         xhr.send(`last=${last}&size=${size}`);
+    },
+    getClients: (callback) => {
+        var xhr = new XMLHttpRequest();
+        xhr.open("get", `${host}/client`);
+        xhr.setRequestHeader("Content-Type", "application/json")
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                callback(xhr.responseText)
+            } else {
+                console.log(xhr.responseText);
+            }
+        }
+        xhr.send();
     }
 }

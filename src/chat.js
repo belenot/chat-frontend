@@ -4,15 +4,13 @@ import SockJS from 'sockjs-client';
 import Stomp from 'stompjs'
 import {api} from './api/api';
 import {StyledChatPane} from './components/styled/StyledChatPane';
+import {StyledClientListPane} from './components/styled/StyledClientListPane';
 
 window.React = React;
 window.api = api;
-var login = 'log';
-var session;
 
 var sendMessage = (message) => {
-    //api.sendMessage(JSON.stringify(message), r => callback(JSON.parse(r)));
-    client.send("/app/message", {session}, JSON.stringify(message));
+    client.send("/app/message", {}, JSON.stringify(message));
 }
 var getMessages;
 var provideMessages = (callback) => {
@@ -20,13 +18,23 @@ var provideMessages = (callback) => {
 }
 
 var recieveMessage= (r) =>{
-    rerender([...getMessages(), JSON.parse(r.body)]);
+    renderChatPane([...getMessages(), JSON.parse(r.body)]);
+}
+var clientChanged = (r) => {
+    renderClientListPane(null, JSON.parse(r.body));
 }
 
-var rerender = (messages) => {
+var renderChatPane = (messages) => {
     ReactDOM.render(
         <StyledChatPane initMessages={messages} sendMessage={sendMessage} provideMessages={provideMessages}/>,
         document.querySelector("#chat-pane")
+    )
+}
+
+var renderClientListPane = (clients, changedClient) => {
+    ReactDOM.render(
+        <StyledClientListPane initClients={clients} changedClient={changedClient}/>,
+        document.querySelector("#chat-client-list-pane")
     )
 }
 
@@ -35,19 +43,21 @@ var client = Stomp.over(ws);
 window.ws = ws;
 window.client = client;
 client.debug(console.log);
-var connected = false;
-var subscription;
+var messageSubscription;
+var clientSubscription;
 client.connect({}, () => {
-    subscription = client.subscribe("/topic/message", recieveMessage);
-    session = client.ws._transport.url.split('/').slice(-2, -1)
+    messageSubscription = client.subscribe("/topic/message", recieveMessage);
+    clientSubscription = client.subscribe("/topic/client", clientChanged);
 });
 
 
 
 window.onload = () => {
-    api.getMessages(r => rerender(JSON.parse(r)));
+    api.getMessages(r => renderChatPane(JSON.parse(r)));
+    api.getClients(r => renderClientListPane(JSON.parse(r)));
 }
 window.onclose= () => {
-    subscription.unsubscribe();
+    messageSubscription.unsubscribe();
+    clientSubscription.unsubscribe();
     client.disconnect();
 }

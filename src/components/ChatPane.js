@@ -1,5 +1,5 @@
 import {StyledMessage} from './styled/StyledMessage';
-import {MessageForm} from './MessageForm'
+import {StyledMessageForm} from './styled/StyledMessageForm'
 import {useState, useEffect} from 'react'
 
 export const ChatPane = ({className, initMessages=[], sendMessage=f=>f, provideMessages=f=>f}) => {
@@ -20,7 +20,7 @@ export const ChatPane = ({className, initMessages=[], sendMessage=f=>f, provideM
                     <StyledMessage key={message.id} message={message} />
                 ))}
             </div>
-            <MessageForm sendMessage={onSendMessage} />
+            <StyledMessageForm sendMessage={onSendMessage} />
         </div>
     )
 }
