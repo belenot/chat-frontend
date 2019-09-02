@@ -4,8 +4,12 @@ import {ChatPane} from '../ChatPane';
 export const StyledChatPane = styled(ChatPane)`
     margin: auto;
     .message-list {
-        max-height: 50vh;
         overflow-y: scroll;
+        height: 90%;
+        display: flex;
+        flex-direction: column;
+        
+        border-bottom: 1px solid black;
     }
 
 `

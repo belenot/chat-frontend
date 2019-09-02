@@ -8,15 +8,12 @@ export const ClientListPane = ({className, initClients=[], changedClient={}}) =>
         setClients([...clients.filter(client => client.id != changedClient.id), changedClient])
     }
     return (
-        <section className="className">
+        <section className={className}>
             <div>
-                <p>Clients</p>
+                <button onClick={()=>setFilter({...filter, online: !filter.online})}>{filter.online?'online':'offline'}</button>
             </div>
             <div className="client-list">
                 {clients.filter(client => client.online == filter.online).map(client => <StyledClientRow key={client.id} client={client} />)}
-            </div>
-            <div>
-                <button onClick={()=>setFilter({...filter, online: !filter.online})}>{filter.online?'online':'offline'}</button>
             </div>
         </section>
     )
