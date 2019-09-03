@@ -5,12 +5,14 @@ import Stomp from 'stompjs'
 import {api} from './api/api';
 import {StyledChatPane} from './components/styled/StyledChatPane';
 import {StyledClientListPane} from './components/styled/StyledClientListPane';
+import {strictTheme} from './components/styled/themes/strictTheme';
 
 window.React = React;
 window.api = api;
 
 var sendMessage = (message) => {
-    client.send("/app/message", {}, JSON.stringify(message));
+    if (message.text)
+        client.send("/app/message", {}, JSON.stringify(message));
 }
 var getMessages;
 var provideMessages = (callback) => {
@@ -26,14 +28,19 @@ var clientChanged = (r) => {
 
 var renderChatPane = (messages) => {
     ReactDOM.render(
-        <StyledChatPane initMessages={messages} sendMessage={sendMessage} provideMessages={provideMessages}/>,
+        <StyledChatPane initMessages={messages} 
+                        sendMessage={sendMessage} 
+                        provideMessages={provideMessages}
+                        theme={strictTheme}/>,
         document.querySelector("#chat-pane")
     )
 }
 
 var renderClientListPane = (clients, changedClient) => {
     ReactDOM.render(
-        <StyledClientListPane initClients={clients} changedClient={changedClient}/>,
+        <StyledClientListPane initClients={clients} 
+                              changedClient={changedClient}
+                              theme={strictTheme}/>,
         document.querySelector("#chat-client-list-pane")
     )
 }

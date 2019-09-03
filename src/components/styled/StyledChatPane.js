@@ -8,8 +8,7 @@ export const StyledChatPane = styled(ChatPane)`
         height: 90%;
         display: flex;
         flex-direction: column;
-        
-        border-bottom: 1px solid black;
+        border-bottom: 1px solid white;
     }
 
 `

@@ -1,7 +1,7 @@
 import {StyledClientRow} from './styled/StyledClientRow';
 import {useState} from 'react';
 
-export const ClientListPane = ({className, initClients=[], changedClient={}}) => {
+export const ClientListPane = ({className, theme, initClients=[], changedClient={}}) => {
     const [filter, setFilter] = useState({online: true});
     const [clients, setClients] = useState(initClients);
     if (changedClient && (clients.find(client => client.id == changedClient.id && client.online != changedClient.online) || !clients.find(client => client.id == changedClient.id))) {
@@ -13,7 +13,7 @@ export const ClientListPane = ({className, initClients=[], changedClient={}}) =>
                 <button onClick={()=>setFilter({...filter, online: !filter.online})}>{filter.online?'online':'offline'}</button>
             </div>
             <div className="client-list">
-                {clients.filter(client => client.online == filter.online).map(client => <StyledClientRow key={client.id} client={client} />)}
+                {clients.filter(client => client.online == filter.online).map(client => <StyledClientRow key={client.id} client={client} theme={theme}/>)}
             </div>
         </section>
     )
