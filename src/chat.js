@@ -29,6 +29,7 @@ var clientChanged = (r) => {
 var renderChatPane = (messages) => {
     ReactDOM.render(
         <StyledChatPane initMessages={messages} 
+                        currentClientLogin={currentClientLogin}
                         sendMessage={sendMessage} 
                         provideMessages={provideMessages}
                         theme={strictTheme}/>,
@@ -44,12 +45,11 @@ var renderClientListPane = (clients, changedClient) => {
         document.querySelector("#chat-client-list-pane")
     )
 }
-
+var currentClientLogin;
 var ws = new SockJS("http://localhost:8080/chat/ws");
 var client = Stomp.over(ws);
 window.ws = ws;
 window.client = client;
-client.debug(console.log);
 var messageSubscription;
 var clientSubscription;
 client.connect({}, () => {
@@ -60,6 +60,7 @@ client.connect({}, () => {
 
 
 window.onload = () => {
+    currentClientLogin = document.querySelector('#client-info label').innerText;
     api.getMessages(r => renderChatPane(JSON.parse(r)));
     api.getClients(r => renderClientListPane(JSON.parse(r)));
 }

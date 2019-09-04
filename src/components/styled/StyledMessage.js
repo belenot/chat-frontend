@@ -4,6 +4,7 @@ import styled from 'styled-components';
 export const StyledMessage = styled(Message)`
     display: flex;
     margin: 5px 10px;
+    max-width: 70%;
     .info{
         label:nth-child(1) {
             font-size: ${props=>props.theme.text.fontSize};
