@@ -1,10 +1,16 @@
 import {StyledMessage} from './styled/StyledMessage';
 import {StyledOwnedMessage} from './styled/StyledOwnedMessage';
 import {StyledMessageForm} from './styled/StyledMessageForm'
+import {StyledTypingStatus} from './styled/StyledTypingStatus';
 import {useState, useEffect} from 'react'
 
-export const ChatPane = ({className, theme, initMessages=[], currentClientLogin="", sendMessage=f=>f, provideMessages=f=>f}) => {
-    let [messages, setMessages] = useState(initMessages);
+export const ChatPane = ({className, theme, 
+                        initMessages=[], currentClientLogin="", 
+                        typingClients=[],
+                        sendMessage=f=>f, 
+                        typing=f=>f,
+                        provideMessages=f=>f}) => {
+    let [messages, setMessages] = useState(initMessages);    
     if (initMessages.length > messages.length) {
         setMessages([...initMessages]);
     }
@@ -27,7 +33,8 @@ export const ChatPane = ({className, theme, initMessages=[], currentClientLogin=
                     <StyledOwnedMessage theme={theme} key={message.id} message={message} />
                 ))}
             </div>
-            <StyledMessageForm theme={theme} sendMessage={onSendMessage} />
+            <StyledTypingStatus clients={typingClients}/>
+            <StyledMessageForm theme={theme} sendMessage={onSendMessage} typing={typing}/>
         </div>
     )
 }

@@ -2,7 +2,7 @@ import {MessageForm} from '../MessageForm';
 import styled from 'styled-components';
 
 export const StyledMessageForm = styled(MessageForm)`
-    margin-top: 20px;
+    margin-top: 5px;
     display: flex;
     justify-content: space-between;
     input[type='image'] {

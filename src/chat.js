@@ -10,9 +10,14 @@ import {strictTheme} from './components/styled/themes/strictTheme';
 window.React = React;
 window.api = api;
 
+var typingClients=[];
 var sendMessage = (message) => {
     if (message.text)
         client.send("/app/message", {}, JSON.stringify(message));
+}
+var typing = (stop) => {
+    let typingClient = {login: currentClientLogin, stop};
+    client.send("/topic/typing", {},  JSON.stringify(typingClient))
 }
 var getMessages;
 var provideMessages = (callback) => {
@@ -25,12 +30,22 @@ var recieveMessage= (r) =>{
 var clientChanged = (r) => {
     renderClientListPane(null, JSON.parse(r.body));
 }
+var typingStatusChanged = (r) => {
+    let currentClient = JSON.parse(r.body);
+    typingClients = [...typingClients.filter(client => currentClient.login != client.login)];
+    if (!currentClient.stop) {
+        typingClients = [...typingClients, currentClient];
+    }
+    renderChatPane([], typingClients);
+}
 
-var renderChatPane = (messages) => {
+var renderChatPane = (messages, typingClients) => {
     ReactDOM.render(
         <StyledChatPane initMessages={messages} 
+                        typingClients={typingClients}
                         currentClientLogin={currentClientLogin}
-                        sendMessage={sendMessage} 
+                        sendMessage={sendMessage}
+                        typing={typing}
                         provideMessages={provideMessages}
                         theme={strictTheme}/>,
         document.querySelector("#chat-pane")
@@ -46,15 +61,17 @@ var renderClientListPane = (clients, changedClient) => {
     )
 }
 var currentClientLogin;
-var ws = new SockJS("http://localhost:8080/chat/ws");
+var ws = new SockJS(`${location.protocol}//${location.host}/chat/ws`);
 var client = Stomp.over(ws);
 window.ws = ws;
 window.client = client;
 var messageSubscription;
 var clientSubscription;
+var typingSubscription;
 client.connect({}, () => {
     messageSubscription = client.subscribe("/topic/message", recieveMessage);
     clientSubscription = client.subscribe("/topic/client", clientChanged);
+    typingSubscription = client.subscribe("/topic/typing", typingStatusChanged);
 });
 
 
