@@ -1,0 +1,228 @@
+img {
+    background: green;
+    border-width: 1px;
+    border-radius: 15px;
+}
+input {
+    font-size: inherit;
+    font-weight: inherit;
+}
+label {
+    font-family: 'Courier New', Courier, monospace;
+}
+button, input[type='submit'], input[type='image']{
+    cursor: pointer;
+    height: fit-content;
+    background: none;    
+}
+input[type='search'],input[type='text'],input[type='password'] {
+    padding-left: 1em;
+    box-shadow: inset 0 0 3px black;
+}
+.nav-btn {
+    border: none;
+    background: none;
+    width: fit-content;
+
+    text-transform: capitalize;
+    font: inherit;
+    text-align: center;
+}
+
+* {
+    outline: none;
+    border: 0px solid black;
+}
+
+html {
+    width: 80%;
+    margin: auto;
+    height: 80%;
+    background-image: url("file:///home/belenot/Desktop/Opera-Background-Light-Blue.jpg");
+    background-size: 100%;
+}
+
+body {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    box-shadow: 0 0 5px black;
+    border-radius: 0 0 10px 10px;    
+}
+body > * {
+    padding: 15px;
+}
+
+header.header {
+    grid-column: 1/3;
+    height: fit-content;
+    display: flex;
+    border-width: 0px 0px 0 0px;
+    border-radius: 10px 10px 0 0;
+
+    font-size: 24pt;
+    font-weight: bold;
+
+    background: lightsteelblue;
+}
+header.header > * {
+    margin-right: 15px;
+    grid-row: auto;
+}
+header.header .nav-btn:first-child {
+    transition: cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s;
+}
+header.header .nav-btn:first-child:hover {
+    
+    transform: rotate(90deg);
+}
+.rooms {
+    background-color: aliceblue;
+    border-width: 1px 1px 0 0;
+    border-radius: 0 0 0 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    box-sizing: border-box;
+
+    font-size: 22pt;
+}
+.rooms form {
+    width: 100%;
+    display: flex;
+    padding: 5px;
+    justify-content: space-between;
+    font-size: 16pt;
+}
+.rooms form input[type='search'] {
+    width: 90%;
+}
+.rooms .room-list {
+    margin-top: 20px;
+    width: 100%;
+}
+.rooms .room-list .room {
+    padding: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.rooms .room-list .room * {
+    cursor: inherit;
+}
+.rooms .room-list .room:hover {
+    background-color: lightsteelblue;
+}
+.rooms .room-list .room img {
+    margin-right: 1em;
+    vertical-align: middle;
+}
+
+.chat {
+    display: flex;
+    flex-direction: column;
+    border-width: 0 0px 0px 0;
+    border-radius: 0 0 10px 0;
+    padding: 0;
+    font-size: 16pt;
+    align-self: stretch;
+    
+}
+.chat .chat-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    background: lightsteelblue;
+    
+    font-size: 20pt;
+}
+.chat .chat-header label {
+    flex: 1;
+    text-align: center;
+}
+.chat .message-list {
+    box-sizing: border-box;
+    width: 100%;
+    border-width: 1px 0 1px 0;
+    flex: 1;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+.chat .message-list .message {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr auto;
+    padding: 5px;
+    margin-top: 15px;
+    width: 70%;
+    
+
+}
+.chat .message-list .own-message {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+}
+.chat .message-list .own-message .time {
+    text-align: right;
+}
+.chat .message-list .message .username {
+    grid-row: 1/3;
+    font-weight: bold;
+    font-size: 16pt;
+}
+.chat .message-list .message .time {
+    font-size: 10pt;
+    color: gray;
+    font-style: italic;
+}
+.chat .message-list .message .text {
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: lighter;    
+    font-size: 18pt;
+}
+.chat .send-form {
+    display: flex;
+}
+.chat .send-form input[type='search'] {
+    height: 2em;
+    flex: 1;
+}
+.chat .send-form input[type='submit'] {
+    vertical-align: middle;
+    padding-top: 10px;
+
+}
+
+.settings-pane {
+    border-width: 1px;
+    display: hidden;
+    grid-template-columns: 5fr 4fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-gap: 10px;
+    position: absolute;
+    transform: translate(10px, 50px);
+    background-color: white;
+}
+.settings-pane button {
+    border-radius: 5px;
+    border-width: 1px;
+}
+.settings-pane img {
+    grid-column: 1/6;
+    grid-row: 1/5;
+}
+.settings-pane .settings-username {
+    grid-row: 1;
+    grid-column: 6/11;
+}
+.settings-pane .settings-name {
+    grid-row: 2;
+    grid-column: 6/10;
+}
+.settings-pane .settings-age {
+    grid-row: 3;
+    grid-column: 6/10;
+}

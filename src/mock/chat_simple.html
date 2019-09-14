@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+        <link rel="stylesheet" type="text/css" href="/home/belenot/programming/projects/java/belenot/chat-frontend/src/mock/chat.css">
+    </head>
+    <body>
+        <section class="settings-pane" hidden>
+            <img style="width:100px; height:100px;">
+            <label class="settings-username">Username</label>
+            <label class="settings-name">Name</label>
+            <button class="change-name-btn">--</button>
+            <label class="settings-age">Age</label>
+            <button class="change-age-btn">++</button>
+            <button class="change-password-btn">change password</button>
+            <button class="delete-btn">delete</button>
+
+        </section>
+        <header class="header">
+            <button class="nav-btn" onClick="showSettings();">&#9881;</button>
+            <img style="width: 1em; height: 1em">
+            <label>Username</label>
+            <button class="nav-btn">logout</button>
+        </header>
+
+        <section class="rooms">
+            <form class="search-room-form">
+                <input type="search" placeholder="room...">
+                <input type="submit" value="go">
+            </form>
+            <div class="room-list">
+                <section class="room">
+                    <img style="width: 1em; height: 1em">
+                    <label>room 1</label>
+                </section>
+                <section class="room">
+                    <img style="width: 1em; height: 1em">
+                    <label>room 2</label>
+                </section>
+                <section class="room">
+                    <img style="width: 1em; height: 1em">
+                    <label>room 3</label>
+                </section>
+            </div>
+        </section>
+        
+        <section class="chat">
+            <header class="chat-header">
+                <label>Room title</label>
+                <div>
+                    <button class="nav-btn">leave</button>
+                    <button class="nav-btn">showClients</button>
+                </div>
+            </header>
+            <section class="message-list">
+                <div class="message own-message">
+                    <label class="text">long text very very very very very very long text with cariege return</label>
+                    <label class="time">00:01:00</label>
+                </div>
+                <div class="message">
+                    <label class="username">user1:</label>
+                    <label class="text">long text very very very very very very long text with cariege return long text very very very very very very long text with cariege return</label>
+                    <label class="time">00:01:00</label>
+                </div>
+                <div class="message">
+                    <label class="username">user1:</label>
+                    <label class="text">text</label>
+                    <label class="time">00:02:00</label>
+                </div>
+                <div class="message">
+                    <label class="username">user2:</label>
+                    <label class="text">text</label>
+                    <label class="time">00:03:00</label>
+                </div>
+            </section>
+            <form class="send-form">
+                <input type="search" placeholder="send...">
+                <input type="submit" value="&#10147;">
+            </form>
+        </section>
+        <script>
+            var settingsHidden = true;
+            function showSettings() {
+                settingsHidden = !settingsHidden;
+                document.querySelector('.settings-pane').style.display = settingsHidden?'none':'grid';
+            }
+        </script>
+    </body>
+</html>

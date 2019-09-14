@@ -1,11 +1,7 @@
-export const Message = ({className, message={}}) => (
-    <section className={className}>
-        <div className="info">
-            <label>{message.client.login}</label>
-            <label>[{message.time}]:</label>
-        </div>
-        <div className="text">
-            {message.text}
-        </div>
-    </section>
+export const Message = ({username, text, time}) => (
+    <div className="message">
+        <label className="username">{username}:</label>
+        <label className="text">{text}</label>
+        <label className="time">{time}</label>
+    </div>
 )
