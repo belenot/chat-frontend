@@ -1,6 +1,6 @@
-export const Room = ({title}) => (
-    <section className="room">
+export const Room = ({room, loadRoom=f=>f}) => (
+    <section className="room" onClick={()=>loadRoom()}>
             <img style={{width: "1em", height: "1em"}} />
-            <label>{title}</label>
+            <label>{room.title}</label>
     </section>
 )

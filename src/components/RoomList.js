@@ -1,9 +1,7 @@
 import {Room} from './Room';
 
-export const RoomList = () => (
+export const RoomList = ({rooms=[], loadRoom=f=>f}) => (
     <div className="room-list">
-        <Room title="room1"/>
-        <Room title="room2"/>
-        <Room title="room3"/>
+        {rooms.map(room => <Room key={room.id} room={room} loadRoom={()=>loadRoom(room.id)}/>)}
     </div>
 )

@@ -1,7 +1,7 @@
-export const Message = ({username, text, time}) => (
+export const Message = ({message}) => (
     <div className="message">
-        <label className="username">{username}:</label>
-        <label className="text">{text}</label>
-        <label className="time">{time}</label>
+        <label className="username">{message.participant.client.login}:</label>
+        <label className="text">{message.text}</label>
+        <label className="time">{message.time}</label>
     </div>
 )

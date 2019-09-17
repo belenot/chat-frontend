@@ -1,6 +1,6 @@
-export const ChatHeader = () => (
+export const ChatHeader = ({chatHeader}) => (
     <header className="chat-header">
-        <label>Room title</label>
+        <label>{chatHeader.roomTitle}</label>
         <div>
             <button className="nav-btn">leave</button>
             <button className="nav-btn">showClients</button>
