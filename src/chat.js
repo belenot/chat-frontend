@@ -33,9 +33,9 @@ window.onclose = () => {
 }
 
 const wsConnectCallback = () => {
-    
+    let login = document.querySelector("meta[name='login']").content;
     ReactDOM.render(
-        <ReactApp state={state} api={api} events={EventRegistry()} wsClient={client}/>,
+        <ReactApp login={login} api={api} events={EventRegistry()} wsClient={client}/>,
         document.querySelector("#react-app")
     )
 }

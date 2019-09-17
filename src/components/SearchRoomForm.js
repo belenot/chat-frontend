@@ -1,8 +1,8 @@
-export const SearchRoomForm = ({onSearchRoomSubmit}) => {
+export const SearchRoomForm = ({searchRoom}) => {
     let searchField;
     const onSubmit = (e) => {
         e.preventDefault();
-        onSearchRoomSubmit(searchField?searchField.value:"");
+        searchRoom(searchField?searchField.value:"");
     }
     return (
         <form className="search-room-form" {...{onSubmit}}>

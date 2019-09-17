@@ -1,6 +1,6 @@
 import {useState} from 'react';
 
-export const CreateRoomFormDialog = ({displayed, createRoom, close}) => {
+export const CreateRoomFormDialog = ({createRoom, close}) => {
     let [isPassword, setIsPassword] = useState(false);
     let form={isPassword: false};
     const onSubmit = (e) => {
@@ -8,7 +8,7 @@ export const CreateRoomFormDialog = ({displayed, createRoom, close}) => {
         createRoom(form.title.value, form.password?form.password.value:undefined);
     }
     return (
-        <div className="create-room-form-dialog dialog" style={{display:displayed?"flex":"none"}}>
+        <div className="create-room-form-dialog dialog">
             <div className="dialog-nav">
                 <button className="close-btn" onClick={()=>close()}>&times;</button>
             </div>

@@ -30,8 +30,11 @@ export const api = {
     createRoom: (title, password, callback=f=>f, errorHandler=console.log) => {
         xhr("post", "/room", callback, errorHandler, "application/json").send(JSON.stringify({title, password}));
     },
-    getRooms: (callback=f=>f,errorHandler=console.log) => {
+    getJoinedRooms: (callback=f=>f,errorHandler=console.log) => {
         xhr("get", "/room/joined", callback, errorHandler).send();
+    },
+    getModeratedRooms: (callback=f=>f, errorHandler=console.log) => {
+        xhr("get", "/room/moderated", callback, errorHandler).send();
     },
 
     leaveRoom: (id, callback=f=>f, errorHandler=console.log) => {
@@ -44,8 +47,12 @@ export const api = {
         xhr("post", `/room/${roomId}/moderator/ban/${clientId}`, callback, errorHandler).send();
     },
 
-    join: (id, callback=f=>f, errorHandler=console.log) => {
-        xhr("post", `/room/${id}/join`, callback, errorHandler).send();
+    join: (id, password, callback=f=>f, errorHandler=console.log) => {
+        if (password) {
+            xhr("post", `/room/${id}/join`, callback, errorHandler).send(password);
+        } else {
+            xhr("post", `/room/${id}/join`, callback, errorHandler).send();
+        }
     },
     sendMessage: (client=Stomp.over(null), id, text) => {
         let csrfToken=document.querySelector("meta[name='csrf-token']").content;

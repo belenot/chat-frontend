@@ -1,33 +1,47 @@
 import {SearchRoomForm} from './SearchRoomForm';
 import {RoomList} from './RoomList';
 import {useState} from 'react';
+import {useEffect} from 'react';
 import { CreateRoomFormDialog } from './CreateRoomFormDialog';
 
-export const Rooms = ({searchRoom, loadRoom, createRoom, events={}}) => {
-    let [roomsState, setRoomsState] = useState(()=>api.getRooms((data)=>setRoomsState(JSON.parse(data))));
-    let [searchedRoomState, setSearchedRoomState] = useState();
+export const Rooms = ({api, events}) => {
+    let [joinedRooms, setJoinedRooms] = useState(()=>api.getJoinedRooms((data)=>setJoinedRooms(JSON.parse(data))));
+    let [moderatedRooms, setModeratedRooms] = useState(()=>api.getModeratedRooms((data)=>setModeratedRooms(JSON.parse(data))));
+    let [searchedRoom, setSearchedRoom] = useState();
     let [formDialogDisplayed, setFormDialogDisplayed] = useState(false);
-    const onSearchRoomSubmit = (title) => {
+
+    useEffect(()=>{
+        let joinedRoomSubscription = events.listen("joinedRoom", (room)=>{
+            if (room.joined) setJoinedRooms([...joinedRooms, room])
+        });
+        return () => {
+            events.unlisten("joinedRoom", joinedRoomSubscription);
+        }
+    })
+
+    const createRoom = (title, password) => {
+        api.createRoom(title, password, (data) => setModeratedRooms([...moderatedRooms, JSON.parse(data)]));
+    }
+    const searchRoom = (title) => {
         if (title) {
-            searchRoom(title, room => setSearchedRoomState([JSON.parse(room)]));
+            api.searchRoom(title, (data) => setSearchedRoom([JSON.parse(data)]));
         } else {
-            setSearchedRoomState(undefined);
+            setSearchedRoom(undefined);
         }
     }
-    const onCreateRoomSubmit = (title, password) => {
-        createRoom(title, password, (r)=>setRoomsState([...roomsState, JSON.parse(r)]))
-        setFormDialogDisplayed(false);
-    }
-    const onLoadRoom=(id) => {
-        loadRoom(id, events.prepare("loaded"));
+    const loadRoom = (id) => {
+        api.loadRoom(id, (data) => events.fire("loadedRoom", JSON.parse(data)))
     }
 
     return (
         <section className="rooms">
             <button className="add-room-activate" onClick={()=>setFormDialogDisplayed(true)}>add room</button>
-            <CreateRoomFormDialog displayed={formDialogDisplayed} createRoom={onCreateRoomSubmit} close={()=>setFormDialogDisplayed(false)}/>
-            <SearchRoomForm {...{onSearchRoomSubmit}} />
-            <RoomList rooms={searchedRoomState || roomsState} loadRoom={onLoadRoom}/>
+            {formDialogDisplayed?<CreateRoomFormDialog {...{createRoom}} close={()=>setFormDialogDisplayed(false)}/>:null}
+            <SearchRoomForm {...{searchRoom}} />
+            joined<br />
+            <RoomList {...{rooms: searchedRoom || joinedRooms, loadRoom}}/>
+            moderated<br />
+            <RoomList {...{rooms: moderatedRooms, loadRoom}}/>
         </section>
     )
 }

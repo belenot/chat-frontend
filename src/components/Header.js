@@ -1,9 +1,13 @@
-export const Header = ({header}) => (
-    <header className="header">
-        {/* <button className="nav-btn" onClick="showSettings();">&#9881;</button> */}
-        <button className="nav-btn">&#9881;</button>
-        <img src={header.avatarSrc} style={{width: "1em", height: "1em"}}/>
-        <label>{header.username}</label>
-        <button className="nav-btn">logout</button>
-    </header>
-)
+export const Header = ({login="", logout=f=>f}) =>  {
+    const onLogout = () => {
+        logout();
+        window.location.href="/";
+    }
+    return (
+        <header className="header">
+            <button className="nav-btn">&#9881;</button>
+            <label>{login}</label>
+            <button className="nav-btn" onClick={onLogout}>logout</button>
+        </header>
+    )
+}
