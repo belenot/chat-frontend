@@ -58,7 +58,11 @@ export const api = {
         let csrfToken=document.querySelector("meta[name='csrf-token']").content;
         let csrfHeader=document.querySelector("meta[name='csrf-header']").content;
         client.send(`/app/chat/room/${id}/message/new`, {[csrfHeader]: csrfToken}, text);
-    }   
+    },
+    getMessagePage: (roomId, page, callback=f=>f, errorHandler=console.log) => {
+        let url = `/room/${roomId}/message/page?page=${encodeURIComponent(page)}&size=10&sort=id,DESC`
+        xhr("get", url, callback, errorHandler).send();
+    }
 }
 var xhr = (method, resource, callback=f=>f, errorHandler=f=>f, contentType="application/x-www-urlencoded") => {
     var xhr = new XMLHttpRequest();
