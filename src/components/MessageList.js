@@ -2,21 +2,9 @@ import { OwnMessage } from "./OwnMessage";
 import { Message } from "./Message";
 import {useEffect} from 'react'
 
-export const MessageList = ({messages=[], login, scrollDown, getPrevMessages=f=>f}) => {
-    let section;
-    useEffect(()=>{
-        section.onscroll = ()=> {
-            if (section.scrollTop == 0) {
-                console.log("It is the peek");
-                getPrevMessages();
-            }
-        }
-        if (scrollDown) {
-            section.scrollTop=section.scrollHeight-section.clientHeight
-        }
-    });
+export const MessageList = ({messages=[], login, setMessagesListRef=f=>f}) => {
     return (
-        <section className="message-list" ref={s=>section=s}>
+        <section className="message-list" ref={s=>setMessagesListRef(s)}>
             {messages.map(message => (
                 message.login != login? 
                 <Message key={message.id} message={message} />:
