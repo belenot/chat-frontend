@@ -59,8 +59,8 @@ export const api = {
         let csrfHeader=document.querySelector("meta[name='csrf-header']").content;
         client.send(`/app/chat/room/${id}/message/new`, {[csrfHeader]: csrfToken}, text);
     },
-    getMessagePage: (roomId, page, callback=f=>f, errorHandler=console.log) => {
-        let url = `/room/${roomId}/message/page?page=${encodeURIComponent(page)}&size=10&sort=id,DESC`
+    getMessagePage: (roomId, page, offset=0, callback=f=>f, errorHandler=console.log) => {
+        let url = `/room/${roomId}/message/page?page=${encodeURIComponent(page)}&size=10&sort=id,DESC&offset=${offset || 0}`
         xhr("get", url, callback, errorHandler).send();
     }
 }

@@ -13,6 +13,7 @@ export const Chat = ({api, events, wsClient=Stomp.over(null)}) => {
         messages: [],
         ws: {client: wsClient, subscription: false},
         pageCount: 0,
+        pageOffset: 0,
         prevRoom: null,
         event: null
     })
@@ -28,23 +29,23 @@ export const Chat = ({api, events, wsClient=Stomp.over(null)}) => {
                 let csrfToken=document.querySelector("meta[name='csrf-token']").content;
                 let csrfHeader=document.querySelector("meta[name='csrf-header']").content;
                 chatState.ws.subscription = chatState.ws.client.subscribe(`/topic/chat/room/${anotherRoom.id}/message`, (data) => events.fire("messageCreated", JSON.parse(data.body)), {[csrfHeader]: csrfToken});
-                api.getMessagePage(anotherRoom.id, 0, messages=>{
-                    setChatState({...chatState, room: anotherRoom, prevRoom: chatState.room, messages: [...JSON.parse(messages).sort((a,b)=>a.id-b.id)], pageCount: 1, ws: chatState.ws, event})
+                api.getMessagePage(anotherRoom.id, 0, 0, messages=>{
+                    setChatState({...chatState, room: anotherRoom, prevRoom: chatState.room, messages: [...JSON.parse(messages).sort((a,b)=>a.id-b.id)], pageCount: 1, pageOffset: 0, ws: chatState.ws, event})
                 });
             }
-            setChatState({...chatState, room: anotherRoom, prevRoom: chatState.room, messages: [], pageCount: 0, ws: chatState.ws, event});
+            setChatState({...chatState, room: anotherRoom, prevRoom: chatState.room, messages: [], pageCount: 0, pageOffset: 0, ws: chatState.ws, event});
         } else {
             setChatState({...chatState, room: anotherRoom, prevRoom: chatState.room, event});
         }
     }
 
     useEffect(()=>{
-        let messageCreatedId = events.listen("messageCreated", (messages) => setChatState({...chatState, messages: [...chatState.messages, messages], event: 'messageCreated'}));
+        let messageCreatedId = events.listen("messageCreated", (messages) => setChatState({...chatState, messages: [...chatState.messages, messages], event: 'messageCreated', pageOffset: chatState.pageOffset+1}));
         let loadedRoomSubscriptionId = events.listen("loadedRoom", ({room, joined}) => reloadRoom({id: room.id, title: room.title, joined, event: 'loadedRoom'}));
         let joinedRoomSubscriptionId = events.listen("joinedRoom", ({id, title, joined}) => reloadRoom({id, title, joined, event: 'joinedRoom'}));
         if (messagesListRef) {
             messagesListRef.onscroll = () => {
-                if (messagesListRef.scrollTop == 0) {
+                if (messagesListRef && messagesListRef.scrollTop == 0) {
                     console.log("It is the peek");
                     getPrevMessages();
                 }
@@ -56,13 +57,14 @@ export const Chat = ({api, events, wsClient=Stomp.over(null)}) => {
                         messagesListRef.scrollTop=(messagesListRef.scrollHeight - prevMessagesListRef.current.scrollHeight);
                     }
                     break;
+                default: messagesListRef.scrollTop=messagesListRef.scrollHeight - messagesListRef.clientHeight; break;
             }
             prevMessagesListRef.current = {scrollHeight: messagesListRef.scrollHeight, scrollTop: messagesListRef.scrollTop};
         }
         return () => {
             events.unlisten("messageCreated", messageCreatedId);
             events.unlisten("loadedRoom", loadedRoomSubscriptionId);
-            events.unlisten("joinedRoom", joinedRoomSubscriptionId)
+            events.unlisten("joinedRoom", joinedRoomSubscriptionId);
         }
     })
     const send = (text) => {
@@ -72,8 +74,8 @@ export const Chat = ({api, events, wsClient=Stomp.over(null)}) => {
         api.join(chatState.room.id, password, (data) => events.fire("joinedRoom", {...chatState.room, joined: data==='true'}));
     }
     const getPrevMessages = () => {
-        api.getMessagePage(chatState.room.id, chatState.pageCount, messages=>{
-            setChatState({...chatState, messages: [...JSON.parse(messages).sort((a,b)=>a.id-b.id), ...chatState.messages], pageCount: chatState.pageCount + 1, event: JSON.parse(messages).length > 0 ? 'prevMessages':null});
+        api.getMessagePage(chatState.room.id, chatState.pageCount, chatState.pageOffset, messages=>{
+            setChatState({...chatState, messages: [...JSON.parse(messages).sort((a,b)=>a.id-b.id), ...chatState.messages], pageCount: chatState.pageCount + 1, event:'prevMessages'});
         });
     }
     const setMessagesListRef = (ref) => messagesListRef = ref;
