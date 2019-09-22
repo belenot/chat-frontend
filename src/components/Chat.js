@@ -5,6 +5,9 @@ import {useState, useEffect, useRef} from 'react';
 import Stomp from 'stompjs';
 import React from 'react';
 import { JoinRoom } from "./JoinRoom";
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 export const Chat = ({api, events, wsClient=Stomp.over(null)}) => {
     let [chatState, setChatState] = useState({
@@ -80,16 +83,31 @@ export const Chat = ({api, events, wsClient=Stomp.over(null)}) => {
     }
     const setMessagesListRef = (ref) => messagesListRef = ref;
     return (
-        <section className="chat">
+        <React.Fragment>
             {chatState.room.id?//loaded?
             chatState.room.joined?//joined?
-            <React.Fragment>
-                <ChatHeader title={chatState.room.title} />
-                <MessageList {...{messages: chatState.messages, login: chatState.client.login, getPrevMessages, setMessagesListRef}} />
-                <SendForm send={send}/>
-            </React.Fragment>
-            :<JoinRoom {...{title: chatState.room.title, join}}/>
+                <React.Fragment>
+                    <Row className="chat-header" style={{height: "10%", alignContent: "center"}}>
+                        <ChatHeader title={chatState.room.title}/>
+                    </Row>
+                    <Row style={{height: "80%"}}>
+                        <Col className="message-list" ref={s=>setMessagesListRef(s)}>
+                            <MessageList {...{messages: chatState.messages, login: chatState.client.login, getPrevMessages, setMessagesListRef}} />
+                        </Col>
+                    </Row>
+                    <Row style={{height: "10%"}}>
+                        <Col xs="12">
+                            <SendForm send={send}/>
+                        </Col> 
+                    </Row> 
+                </React.Fragment>
+            :
+            <Row style={{height: "100%"}}>
+                <Col style={{display: "flex", justifyContent: "center"}}>
+                    <JoinRoom {...{title: chatState.room.title, join}}/>
+                </Col>
+            </Row>
             :null}
-        </section>
+        </React.Fragment>
     )
 }

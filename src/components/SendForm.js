@@ -1,3 +1,7 @@
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Col from 'react-bootstrap/Col';
+
 export const SendForm = ({send=f=>f}) => {
     let inputRef;
     const onSubmit = (e) => {
@@ -6,9 +10,14 @@ export const SendForm = ({send=f=>f}) => {
         inputRef.value="";
     }
     return (
-        <form className="send-form" {...{onSubmit}}>
-            <input type="text" placeholder="send..." autoComplete="off" ref={field=>inputRef=field}/>
-            <input type="submit" value="&#10147;" />
-        </form>
+        <Form className="send-form" {...{onSubmit}}>
+            <Form.Row as={InputGroup}>
+                <Form.Control type="text" placeholder="send..." autoComplete="off" ref={field=>inputRef=field}/>
+                <InputGroup.Append>
+                    <Form.Control type="submit" value="&#10147;" />
+                </InputGroup.Append>
+            </Form.Row>
+            
+        </Form>
     )
 }

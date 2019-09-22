@@ -1,4 +1,8 @@
 import {useState} from 'react';
+import Form from 'react-bootstrap/Form';
+import Badge from 'react-bootstrap/Badge';
+import Accordion from 'react-bootstrap/Accordion';
+import Button from 'react-bootstrap/Button';
 
 export const CreateRoomFormDialog = ({createRoom, close}) => {
     let [isPassword, setIsPassword] = useState(false);
@@ -6,27 +10,25 @@ export const CreateRoomFormDialog = ({createRoom, close}) => {
     const onSubmit = (e) => {
         e.preventDefault();
         createRoom(form.title.value, form.password?form.password.value:undefined);
+        form.password.value=null;
+        form.title.value=null;
     }
     return (
-        <div className="create-room-form-dialog dialog">
-            <div className="dialog-nav">
-                <button className="close-btn" onClick={()=>close()}>&times;</button>
-            </div>
-            <form onSubmit={onSubmit}>
-                <label className="dialog-header">Create Room</label>
-                <input ref={p=>form.title=p} type="text" name="title" placeholder="title" autoComplete="off"/>
-                {isPassword?
-                    <input ref={p=>form.password=p} type="password" name="password" placeholder="password"  /> 
-                    : <input type="text" disabled placeholder="without password"/> 
-                }
-                <div>
-                    <label>Include Password</label>
-                    <input onClick={()=>setIsPassword(!isPassword)} type="checkbox" name="isPassword" />
-                </div>
-                <input type="submit" value="create" />
+            <Form className="add-room-form" onSubmit={onSubmit}>
+                <Form.Group>
+                    <Form.Label className="dialog-header">Create Room</Form.Label>
+                    <Form.Control ref={p=>form.title=p} type="text" name="title" placeholder="title" autoComplete="off"/>
+                    <Accordion>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                            password
+                        </Accordion.Toggle>
+                        <Accordion.Collapse eventKey="0">
+                            <Form.Control ref={p=>form.password=p} type="password" name="password" placeholder="password"  /> 
+                        </Accordion.Collapse>
+                    </Accordion>
+                </Form.Group>
+                <Form.Control type="submit" value="create" />
 
-            </form>
-
-        </div>
+            </Form>
     )
 }

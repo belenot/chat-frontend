@@ -7,6 +7,8 @@ import {state} from './state'
 import {strictTheme} from './components/styled/themes/strictTheme';
 import { ReactApp } from './components/ReactApp';
 import { EventRegistry } from './EventRegistry';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 
 window.React = React;
