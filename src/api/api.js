@@ -4,17 +4,14 @@ import Stomp from 'stompjs';
 const host = ""
 
 export const api = {
-    updateName: () => {
-        //comming soon
+    updateClient: (updatedClient, callback=f=>f, errorHandler=console.log) => {
+        xhr("post", "/client/update", callback, errorHandler, "application/json").send(JSON.stringify(updatedClient));
     },
-    changePassword: () => {
-        //comming soon
+    deleteClient: (callback=f=>f, errorHandler=console.log) => {
+        xhr("post", "/client/delete", callback, errorHandler).send();
     },
-    updateAge: () => {
-        //comming soon
-    },
-    deleteClient: () => {
-        //comming soon
+    getClients: (id, callback=f=>f, errorHandler=console.log) => {
+        xhr("get", `/room/${id}/clients`, callback, errorHandler).send();
     },
 
     logout: () => {
@@ -22,7 +19,7 @@ export const api = {
     },
 
     searchRoom: (title, callback=f=>f, errorHandler=console.log) => {
-        xhr("get", "/room/search?title="+encodeURIComponent(title), callback, errorHandler).send();
+        xhr("post", "/room/search?title="+encodeURIComponent(title), callback, errorHandler).send();
     },
     loadRoom: (id, callback=f=>f, errorHandler=console.log) => {
         xhr("get", `/room/${id}`, callback, errorHandler).send();

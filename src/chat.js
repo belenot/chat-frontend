@@ -18,10 +18,10 @@ window.SockJS = SockJS;
 
 var ws;
 var client;
-
 window.onload = () => {
     ws = new SockJS("/chat/ws");
     client = Stomp.over(ws);
+    window.wsClient = client
     let csrfToken = document.querySelector("meta[name='csrf-token']").content;
     let csrfHeader = document.querySelector("meta[name='csrf-header']").content;
     let headers = {[csrfHeader]: csrfToken};
@@ -36,8 +36,8 @@ window.onclose = () => {
 
 const wsConnectCallback = () => {
     let login = document.querySelector("meta[name='login']").content;
-    ReactDOM.render(
-        <ReactApp login={login} api={api} events={EventRegistry()} wsClient={client}/>,
-        document.querySelector("#react-app")
-    )
+    // ReactDOM.render(
+    //     <ReactApp login={login} api={api} events={EventRegistry()} wsClient={client}/>,
+    //     document.querySelector("#react-app")
+    // )
 }

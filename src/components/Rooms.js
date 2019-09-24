@@ -23,6 +23,9 @@ export const Rooms = ({api, events}) => {
         let joinedRoomSubscription = events.listen("joinedRoom", (room)=>{
             if (room.joined) setJoinedRooms([...joinedRooms, room])
         });
+        let leavedRoomSubscription = events.listen("leavedRoom", (room) => {
+            setJoinedRooms(joinedRooms.filter(r=>r.id != room.id));
+        })
         return () => {
             events.unlisten("joinedRoom", joinedRoomSubscription);
         }

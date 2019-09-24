@@ -46,6 +46,7 @@ export const Chat = ({api, events, wsClient=Stomp.over(null)}) => {
         let messageCreatedId = events.listen("messageCreated", (messages) => setChatState({...chatState, messages: [...chatState.messages, messages], event: 'messageCreated', pageOffset: chatState.pageOffset+1}));
         let loadedRoomSubscriptionId = events.listen("loadedRoom", ({room, joined}) => reloadRoom({id: room.id, title: room.title, joined, event: 'loadedRoom'}));
         let joinedRoomSubscriptionId = events.listen("joinedRoom", ({id, title, joined}) => reloadRoom({id, title, joined, event: 'joinedRoom'}));
+        let leavedRoomSubscriptionId = events.listen("leavedRoom", ({id, title}) => {reloadRoom({id, title, joined: false, event: 'leavedRoom'})});
         if (messagesListRef) {
             messagesListRef.onscroll = () => {
                 if (messagesListRef && messagesListRef.scrollTop == 0) {
@@ -68,6 +69,7 @@ export const Chat = ({api, events, wsClient=Stomp.over(null)}) => {
             events.unlisten("messageCreated", messageCreatedId);
             events.unlisten("loadedRoom", loadedRoomSubscriptionId);
             events.unlisten("joinedRoom", joinedRoomSubscriptionId);
+            events.unlisten("leavedRoom", leavedRoomSubscriptionId);
         }
     })
     const send = (text) => {
@@ -81,6 +83,9 @@ export const Chat = ({api, events, wsClient=Stomp.over(null)}) => {
             setChatState({...chatState, messages: [...JSON.parse(messages).sort((a,b)=>a.id-b.id), ...chatState.messages], pageCount: chatState.pageCount + 1, event:'prevMessages'});
         });
     }
+    const leave = () => {
+        api.leaveRoom(chatState.room.id, () => events.fire("leavedRoom", {id: chatState.room.id, title: chatState.room.title}));
+    }
     const setMessagesListRef = (ref) => messagesListRef = ref;
     return (
         <React.Fragment>
@@ -88,7 +93,7 @@ export const Chat = ({api, events, wsClient=Stomp.over(null)}) => {
             chatState.room.joined?//joined?
                 <React.Fragment>
                     <Row className="chat-header" style={{height: "10%", alignContent: "center"}}>
-                        <ChatHeader title={chatState.room.title}/>
+                        <ChatHeader title={chatState.room.title} leave={leave}/>
                     </Row>
                     <Row style={{height: "80%"}}>
                         <Col className="message-list" ref={s=>setMessagesListRef(s)}>
