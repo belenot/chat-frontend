@@ -41,7 +41,10 @@ export const api = {
         xhr("post", `/room/${id}/moderator/delete`, callback, errorHandler).send();
     },
     ban: (roomId, clientId, callback=f=>f, errorHandler=console.log) => {
-        xhr("post", `/room/${roomId}/moderator/ban/${clientId}`, callback, errorHandler).send();
+        xhr("post", `/room/${roomId}/moderator/ban/${clientId}?ban=${true}`, callback, errorHandler).send();
+    },
+    unban: (roomId, clientId, callback=f=>f, errorHandler=console.log) => {
+        xhr("post", `/room/${roomId}/moderator/ban/${clientId}?ban=${false}`, callback, errorHandler).send();
     },
 
     join: (id, password, callback=f=>f, errorHandler=console.log) => {
