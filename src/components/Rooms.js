@@ -12,44 +12,36 @@ import Accordion from 'react-bootstrap/Accordion';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import React from 'react';
+import { useRooms } from '../hooks/useRoom';
 
-export const Rooms = ({api, events}) => {
-    let [joinedRooms, setJoinedRooms] = useState(()=>api.getJoinedRooms((data)=>setJoinedRooms(JSON.parse(data))));
-    let [moderatedRooms, setModeratedRooms] = useState(()=>api.getModeratedRooms((data)=>setModeratedRooms(JSON.parse(data))));
-    let [searchedRoom, setSearchedRoom] = useState();
-    let [formDialogDisplayed, setFormDialogDisplayed] = useState(false);
-
+export const Rooms = ({apiActions, dispatcher}) => {
+    let [rooms, roomsActions, dispatchId] = useRooms(dispatcher);
     useEffect(()=>{
-        let joinedRoomSubscription = events.listen("joinedRoom", (room)=>{
-            if (room.joined) setJoinedRooms([...joinedRooms, room])
-        });
-        let leavedRoomSubscription = events.listen("leavedRoom", (room) => {
-            setJoinedRooms(joinedRooms.filter(r=>r.id != room.id));
-        })
         return () => {
-            events.unlisten("joinedRoom", joinedRoomSubscription);
+            dispatcher.unreg(dispatchId);
         }
     })
 
     const createRoom = (title, password) => {
-        api.createRoom(title, password, (data) => setModeratedRooms([...moderatedRooms, JSON.parse(data)]));
+        // api.createRoom(title, password, (data) => setModeratedRooms([...moderatedRooms, JSON.parse(data)]));
     }
     const searchRoom = (title) => {
-        if (title) {
-            api.searchRoom(title, (data) => setSearchedRoom([JSON.parse(data)]));
-        } else {
-            setSearchedRoom(undefined);
-        }
+        // if (title) {
+        //     api.searchRoom(title, (data) => setSearchedRoom([JSON.parse(data)]));
+        // } else {
+        //     setSearchedRoom(undefined);
+        // }
     }
     const loadRoom = (id) => {
-        api.loadRoom(id, (data) => events.fire("loadedRoom", JSON.parse(data)))
+        // api.loadRoom(id, (data) => events.fire("loadedRoom", JSON.parse(data)))
     }
-
+    const {createRoomForm} = rooms;
+    const {cook} = roomsActions;
     return (
         <React.Fragment>
             <Row>
-                <Accordion style={{padding: "15px", width: "100%"}}>
-                    <Accordion.Toggle as={Button} eventKey="0" className="rooms-accordion-toggle">
+                <Accordion defaultActiveKey={null} activeKey={createRoomForm.activeKey} style={{padding: "15px", width: "100%"}}>
+                    <Accordion.Toggle onClick={cook("toggleCreateRoomForm")} as={Button} eventKey="0" className="rooms-accordion-toggle">
                         Add room
                     </Accordion.Toggle>
                     <Accordion.Collapse eventKey="0" className="rooms-accordion-collapse">
@@ -57,7 +49,7 @@ export const Rooms = ({api, events}) => {
                     </Accordion.Collapse>
                 </Accordion>
             </Row>
-            <hr />
+            {/* <hr />
             <Row as={SearchRoomForm} {...{searchRoom}} />
             <hr />
             <Accordion defaultActiveKey="0" style={{ overflowY:"scroll", maxHeight: "40%"}}>
@@ -81,7 +73,7 @@ export const Rooms = ({api, events}) => {
                         </Card.Body>
                     </Accordion.Collapse>
                 </Card>
-            </Accordion>
+            </Accordion> */}
         </React.Fragment>
     )
 }

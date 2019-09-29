@@ -4,7 +4,7 @@ import Badge from 'react-bootstrap/Badge';
 import Accordion from 'react-bootstrap/Accordion';
 import Button from 'react-bootstrap/Button';
 
-export const CreateRoomFormDialog = ({createRoom, close}) => {
+export const CreateRoomFormDialog = ({createRoom}) => {
     let [isPassword, setIsPassword] = useState(false);
     let form={isPassword: false};
     const onSubmit = (e) => {
