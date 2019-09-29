@@ -7,7 +7,7 @@ export const api = {
     updateClient: ({updatedClient}, callback=f=>f, errorHandler=console.log) => {
         xhr("post", "/client/update", callback, errorHandler, "application/json").send(JSON.stringify(updatedClient));
     },
-    deleteClient: (callback=f=>f, errorHandler=console.log) => {
+    deleteClient: ({}, callback=f=>f, errorHandler=console.log) => {
         xhr("post", "/client/delete", callback, errorHandler).send();
     },
     getClients: ({id}, callback=f=>f, errorHandler=console.log) => {
@@ -18,7 +18,7 @@ export const api = {
         xhr("post", "/logout").send();
     },
 
-    searchRoom: ({title}, callback=f=>f, errorHandler=console.log) => {
+    searchRooms: ({title}, callback=f=>f, errorHandler=console.log) => {
         xhr("post", "/room/search?title="+encodeURIComponent(title), callback, errorHandler).send();
     },
     loadRoom: ({id}, callback=f=>f, errorHandler=console.log) => {
@@ -27,10 +27,10 @@ export const api = {
     createRoom: ({title, password}, callback=f=>f, errorHandler=console.log) => {
         xhr("post", "/room/create", callback, errorHandler, "application/json").send(JSON.stringify({title, password}));
     },
-    getJoinedRooms: (callback=f=>f,errorHandler=console.log) => {
+    getJoinedRooms: ({}, callback=f=>f,errorHandler=console.log) => {
         xhr("get", "/room/joined", callback, errorHandler).send();
     },
-    getModeratedRooms: (callback=f=>f, errorHandler=console.log) => {
+    getModeratedRooms: ({}, callback=f=>f, errorHandler=console.log) => {
         xhr("get", "/room/moderated", callback, errorHandler).send();
     },
 

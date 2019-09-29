@@ -2,7 +2,7 @@ import {Dispatcher } from './Dispatcher';
 import {api} from './api/api';
 const tryParse = (data) => {try {return JSON.parse(data)}catch(e){return data;}}
 const yelOk = (event, dispatcher, source) => (response) => dispatcher.yel(event, {status: "ok", data: tryParse(response)}, source);
-const yelErr = (event, dispatcher, source) => (error) => dispatcher.yel(event, {status: "err", data: tryParse(error)}, source);
+const yelErr = (event, dispatcher, source) => (error) => dispatcher.yel(event, {status: "err", error: tryParse(error)}, source);
 
 export const Actions = (functions={}, dispatcher, source) => {
     const call = (action, param={}) => {
@@ -17,9 +17,7 @@ export const Actions = (functions={}, dispatcher, source) => {
             console.log(`Undefined action: ${JSON.stringify(errorInfo)}`)
         }
     };
-    const cook = (action, param={}) => () => call(action, param);
-    return  {
-        call,
-        cook 
-    }
+    const bake = (action, param={}) => () => call(action, param);
+    const cook = (action) => (param={}) => call(action, param);
+    return  {call, cook, bake}
 }

@@ -18,7 +18,7 @@ export const ReactApp = ({login, apiActions, dispatcher, wsClient}) => (
     // </Fragment>
     <Container  style={{height: "75%", width: "75%"}} fluid>
         <Row className="header" style={{height: "12%", overflowY: "hidden"}}>
-            <Header login={login} logout={apiActions.cook("logout")}/>
+            <Header login={login} logout={apiActions.bake("logout")}/>
         </Row>
             
         <Row style={{height: "88%", overflowY: "hidden", boxShadow: "0 0 5px black"}}>
