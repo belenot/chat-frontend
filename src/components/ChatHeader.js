@@ -6,7 +6,7 @@ import Row from 'react-bootstrap/Row';
 import InputGroup from 'react-bootstrap/InputGroup';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
-export const ChatHeader = ({title, leave=f=>f}) => (
+export const ChatHeader = ({title, chatActions}) => (
     <React.Fragment>
         <Col xs="8" as="h3" style={{textAlign: "center"}}>
             <Badge variant="secondary" className="room-title-badge">
@@ -17,7 +17,7 @@ export const ChatHeader = ({title, leave=f=>f}) => (
             <Row>
                 <Col>
                 <ButtonGroup>
-                    <Button size="sm" className="nav-btn" onClick={leave}>leave</Button>
+                    <Button size="sm" className="nav-btn" onClick={chatActions.bake("onLeaveRoomBtnClick")}>leave</Button>
                     
                     <Button size="sm" className="nav-btn">showClients</Button>
                 </ButtonGroup>

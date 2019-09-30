@@ -3,11 +3,12 @@ import FormGroup from 'react-bootstrap/FormGroup';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 
-export const JoinRoom = ({title, join}) => {
+export const JoinRoomForm = ({title, chatActions}) => {
     let passwordField;
     const onSubmit = (e) => {
         e.preventDefault();
-        join(passwordField.value);
+        let password = passwordField.value;
+        chatActions.call("onJoinRoomFormSubmit", {password})
     }
     return (
         <Card style={{width: "60%", alignSelf: "center"}}>

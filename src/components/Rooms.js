@@ -16,12 +16,14 @@ import {useRef} from 'react';
 import { useRooms } from '../hooks/useRooms';
 
 export const Rooms = ({apiActions, dispatcher}) => {
-    let [rooms, roomsActions, dispatch] = useRooms(dispatcher, apiActions);
-    
+    let [rooms, roomsActions] = useRooms(dispatcher, apiActions);
     useEffect(()=> {
-        apiActions.call("getJoinedRooms");
-        apiActions.call("getModeratedRooms");
-    }, [])
+        if (!rooms.joinedInited) {
+            apiActions.call("getJoinedRooms");        
+        } else {
+            apiActions.call("getModeratedRooms");
+        }
+    }, [rooms.joinedInited])
     const loadRoom = (id) => {
         // api.loadRoom(id, (data) => events.fire("loadedRoom", JSON.parse(data)))
     }

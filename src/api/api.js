@@ -19,7 +19,7 @@ export const api = {
     },
 
     searchRooms: ({title}, callback=f=>f, errorHandler=console.log) => {
-        xhr("post", "/room/search?title="+encodeURIComponent(title), callback, errorHandler).send();
+        xhr("post", "/room/search?title="+encodeURIComponent("%"+title+"%"), callback, errorHandler).send();
     },
     loadRoom: ({id}, callback=f=>f, errorHandler=console.log) => {
         xhr("get", `/room/${id}`, callback, errorHandler).send();
@@ -47,17 +47,18 @@ export const api = {
         xhr("post", `/room/${roomId}/moderator/ban/${clientId}?ban=${false}`, callback, errorHandler).send();
     },
 
-    join: ({id, password}, callback=f=>f, errorHandler=console.log) => {
+    joinRoom: ({id, password}, callback=f=>f, errorHandler=console.log) => {
         if (password) {
             xhr("post", `/room/${id}/join`, callback, errorHandler).send(password);
         } else {
             xhr("post", `/room/${id}/join`, callback, errorHandler).send();
         }
     },
-    sendMessage: ({client=Stomp.over(null), id, text}) => {
+    sendMessage: ({client=Stomp.over(null), id, text}, callback=f=>f) => {
         let csrfToken=document.querySelector("meta[name='csrf-token']").content;
         let csrfHeader=document.querySelector("meta[name='csrf-header']").content;
         client.send(`/app/room/${id}/message/new`, {[csrfHeader]: csrfToken}, text);
+        //callback();
     },
     getMessagePage: ({roomId, page, offset=0}, callback=f=>f, errorHandler=console.log) => {
         let url = `/room/${roomId}/messages?page=${encodeURIComponent(page)}&size=10&sort=id,DESC&offset=${offset || 0}`

@@ -4,6 +4,8 @@ import {useState, useRef, useEffect} from 'react'
 const initRoomsState = {
     joinedRooms: [],
     moderatedRooms: [],
+    joinedInited: false,
+    moderatedInited: false,
     searchedRooms: [],
     createRoomForm: {activeKey: '', error: undefined},
     searchRoomsForm: {
@@ -68,13 +70,13 @@ export const useRooms = (dispatcher={yel: f=>f, reg: f=>f}, apiActions={call:f=>
             }
             case "getJoinedRooms": {
                 if (status == 'ok') {
-                    setRooms({...rooms, joinedRooms: data.length?[...data]:[]})
+                    setRooms({...rooms, joinedRooms: data.length?[...data]:[], joinedInited: true})
                 }
                 break;
             }
             case "getModeratedRooms": {
                 if (status == 'ok') {
-                    setRooms({...rooms, moderatedRooms: data.length?[...data]:[]})
+                    setRooms({...rooms, moderatedRooms: data.length?[...data]:[], moderatedInited: true});
                 }
                 break;
             }
@@ -115,5 +117,5 @@ export const useRooms = (dispatcher={yel: f=>f, reg: f=>f}, apiActions={call:f=>
             apiActions.call("loadRoom", {id})
         }
     }
-    return [rooms, Actions(roomsFunctions, dispatcher, "roomsActions"), dispatch]
+    return [rooms, Actions(roomsFunctions, dispatcher, "roomsActions")]
 }

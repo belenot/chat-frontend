@@ -4,12 +4,12 @@ import {Chat} from './Chat';
 import React, {Fragment} from 'react';
 import {useState} from 'react';
 import {useEffect} from 'react'
-import { JoinRoom } from './JoinRoom';
+import { JoinRoom } from './JoinRoomForm';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-export const ReactApp = ({login, apiActions, dispatcher, wsClient}) => (
+export const ReactApp = ({login, apiActions, wsEventActions, dispatcher, wsClient}) => (
 
     // <Fragment>
     //     <Header login={login} logout={api.logout}/>
@@ -25,9 +25,9 @@ export const ReactApp = ({login, apiActions, dispatcher, wsClient}) => (
             <Col className="rooms">
                 <Rooms xs="3" style={{height: "100%"}} {...{apiActions, dispatcher}} />
             </Col> 
-            {/* <Col xs="9" style={{height: "100%"}}>
-                <Chat {...{actions, dispatcher, wsClient}}/>
-            </Col> */}
+            <Col xs="9" style={{height: "100%"}}>
+                <Chat {...{apiActions, wsEventActions, dispatcher, wsClient}}/>
+            </Col>
         </Row>
     </Container>
 )

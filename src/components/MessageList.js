@@ -7,13 +7,13 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import React from 'react';
 
-export const MessageList = ({messages=[], login, setMessagesListRef=f=>f}) => {
+export const MessageList = ({messages=[], login, apiActions}) => {
     return (
         <React.Fragment>
             {messages.map(message => (
-                <Row style={{marginTop:"10px"}}>
+                <Row key={message.id} style={{marginTop:"10px"}}>
                         <Col className="message" xs="8">
-                            <Message key={message.id} message={message} />
+                            <Message message={message} />
                         </Col>
                 </Row>
             ))}
