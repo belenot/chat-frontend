@@ -12,72 +12,68 @@ import Accordion from 'react-bootstrap/Accordion';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import React from 'react';
-import {useRef} from 'react';
+import {useRef, useContext} from 'react';
 import { useRooms } from '../hooks/useRooms';
+import { AppContext } from './ReactApp';
+import { api } from '../api/api';
 
-export const Rooms = ({apiActions, dispatcher}) => {
-    let [rooms, roomsActions] = useRooms(dispatcher, apiActions);
+export const Rooms = (/*{apiActions, dispatcher}*/) => {
+    const {state, dispatch} = useContext(AppContext);
+    const {rooms} = state;
     useEffect(()=> {
-        if (!rooms.joinedInited) {
-            apiActions.call("getJoinedRooms");        
-        } else {
-            apiActions.call("getModeratedRooms");
-        }
-    }, [rooms.joinedInited])
-    const loadRoom = (id) => {
-        // api.loadRoom(id, (data) => events.fire("loadedRoom", JSON.parse(data)))
-    }
-    const {createRoomForm, searchRoomsForm, searchedRooms, joinedRooms, moderatedRooms, roomsGroups} = rooms;
-    const {cook, bake} = roomsActions;
+        api.getJoinedRooms({}, (joinedRooms)=>dispatch({type:'getJoinedRooms_success', payload:{joinedRooms: JSON.parse(joinedRooms)}}));
+        api.getModeratedRooms({}, (moderatedRooms)=>dispatch({type:'getModeratedRooms_success', payload:{moderatedRooms: JSON.parse(moderatedRooms)}}));
+    }, [])
     return (
-        <React.Fragment>
-            <Row>
-                <Accordion defaultActiveKey={null} activeKey={createRoomForm.activeKey} style={{padding: "15px", width: "100%"}}>
-                    <Accordion.Toggle onClick={bake("toggleCreateRoomForm")} as={Button} eventKey="0" className="rooms-accordion-toggle">
-                        Add room
-                    </Accordion.Toggle>
-                    <Accordion.Collapse eventKey="0" className="rooms-accordion-collapse">
-                        <CreateRoomForm {...{roomsActions, error: createRoomForm.error}}/>
-                    </Accordion.Collapse>
-                </Accordion>
-            </Row>
-            <hr />
-            <Row as={SearchRoomsForm} {...{...searchRoomsForm, roomsActions}} />
-            <hr />
-            <Accordion activeKey={roomsGroups.activeKey} style={{ overflowY:"scroll", maxHeight: "40%"}}>
-                {searchedRooms.length?
-                    <Card>
-                        <Accordion.Toggle as={Card.Header} eventKey="searchedRooms" style={{cursor: "pointer"}} onClick={roomsActions.bake("setActiveRoomsGroup", {activeKey: "searchedRooms"})}>
-                            <Badge>Searched</Badge>
+            <React.Fragment>
+                <Row>
+                    <Accordion defaultActiveKey={null} activeKey={rooms.createRoomForm.activeKey} style={{padding: "15px", width: "100%"}}>
+                        <Accordion.Toggle onClick={()=>dispatch({type: "onToggleCreateRoomForm"})} as={Button} eventKey="createRoomForm" className="rooms-accordion-toggle">
+                            Add room
                         </Accordion.Toggle>
-                        <Accordion.Collapse eventKey="searchedRooms">
+                        <Accordion.Collapse eventKey="createRoomForm" className="rooms-accordion-collapse">
+                            <CreateRoomForm />
+                        </Accordion.Collapse>
+                    </Accordion>
+                </Row>
+                <hr />
+                <Row as={SearchRoomsForm} />
+                <hr />
+                
+                <Accordion activeKey={rooms.roomsGroups.activeKey} style={{ overflowY:"scroll", maxHeight: "40%"}}>
+                    {rooms.searchedRooms.length?
+                        <Card>
+                            <Accordion.Toggle as={Card.Header} eventKey="searchedRooms" style={{cursor: "pointer"}} onClick={()=>dispatch({type:"onRoomsAccordionToggle", payload: {activeKey: "searchedRooms"}})}>
+                                <Badge>Searched</Badge>
+                            </Accordion.Toggle>
+                            <Accordion.Collapse eventKey="searchedRooms">
+                                <Card.Body>
+                                    <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: rooms.searchedRooms}} />
+                                </Card.Body>
+                            </Accordion.Collapse>
+                        </Card>
+                    :undefined}
+                    <Card>
+                        <Accordion.Toggle as={Card.Header} eventKey="joinedRooms" style={{cursor: "pointer"}} onClick={()=>dispatch({type:"onRoomsAccordionToggle", payload: {activeKey: "joinedRooms"}})}>
+                            <Badge>Joined</Badge>
+                        </Accordion.Toggle>
+                        <Accordion.Collapse eventKey="joinedRooms">
                             <Card.Body>
-                                <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: searchedRooms, roomsActions}} />
+                                <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: rooms.joinedRooms}} />
                             </Card.Body>
                         </Accordion.Collapse>
                     </Card>
-                :undefined}
-                <Card>
-                    <Accordion.Toggle as={Card.Header} eventKey="joinedRooms" style={{cursor: "pointer"}} onClick={roomsActions.bake("setActiveRoomsGroup", {activeKey: "joinedRooms"})}>
-                        <Badge>Joined</Badge>
-                    </Accordion.Toggle>
-                    <Accordion.Collapse eventKey="joinedRooms">
-                        <Card.Body>
-                            <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: joinedRooms, roomsActions}} />
-                        </Card.Body>
-                    </Accordion.Collapse>
-                </Card>
-                <Card>
-                    <Accordion.Toggle as={Card.Header} eventKey="moderatedRooms" style={{cursor: "pointer"}} onClick={roomsActions.bake("setActiveRoomsGroup", {activeKey: "moderatedRooms"})}>
-                        <Badge>Moderated</Badge>
-                    </Accordion.Toggle>
-                    <Accordion.Collapse eventKey="moderatedRooms">
-                        <Card.Body>
-                            <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: moderatedRooms, roomsActions}}/>
-                        </Card.Body>
-                    </Accordion.Collapse>
-                </Card>
-            </Accordion>
-        </React.Fragment>
+                    <Card>
+                        <Accordion.Toggle as={Card.Header} eventKey="moderatedRooms" style={{cursor: "pointer"}} onClick={()=>dispatch({type:"onRoomsAccordionToggle", payload: {activeKey: "moderatedRooms"}})}>
+                            <Badge>Moderated</Badge>
+                        </Accordion.Toggle>
+                        <Accordion.Collapse eventKey="moderatedRooms">
+                            <Card.Body>
+                                <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: rooms.moderatedRooms}}/>
+                            </Card.Body>
+                        </Accordion.Collapse>
+                    </Card>
+                </Accordion>
+            </React.Fragment>
     )
 }

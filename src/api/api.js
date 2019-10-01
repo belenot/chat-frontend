@@ -19,7 +19,11 @@ export const api = {
     },
 
     searchRooms: ({title}, callback=f=>f, errorHandler=console.log) => {
-        xhr("post", "/room/search?title="+encodeURIComponent("%"+title+"%"), callback, errorHandler).send();
+        if (title){
+            xhr("post", "/room/search?title="+encodeURIComponent("%"+title+"%"), callback, errorHandler).send();
+        } else {
+            xhr("post", "/room/search?title="+encodeURIComponent(""), callback, errorHandler).send();
+        }
     },
     loadRoom: ({id}, callback=f=>f, errorHandler=console.log) => {
         xhr("get", `/room/${id}`, callback, errorHandler).send();

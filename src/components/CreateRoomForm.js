@@ -1,17 +1,28 @@
-import {useState} from 'react';
+import {useState, useEffect, useContext} from 'react';
 import Form from 'react-bootstrap/Form';
 import Badge from 'react-bootstrap/Badge';
 import Accordion from 'react-bootstrap/Accordion';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
+import { AppContext } from './ReactApp';
 import { api } from '../api/api';
 
-export const CreateRoomForm = ({error, roomsActions={call:f=>f, bake:f=>f}}) => {
-    let [isPassword, setIsPassword] = useState(false);
+export const CreateRoomForm = () => {
+    const {state, dispatch} = useContext(AppContext);
+    const {error} = state.rooms.createRoomForm;
+    useEffect(()=>{
+        if(state._effect.type == 'createRoom') {
+            api.createRoom(
+                state._effect.payload, 
+                (room) => dispatch({type:'createRoom_success', payload: {room: JSON.parse(room)}}),
+                (error) => dispatch({type:'createRoom_error', payload: {error}})
+            )
+        }
+    }, [state._effect])
     let form={isPassword: false};
     const onSubmit = (e) => {
         e.preventDefault();
-        roomsActions.call("onCreateRoomFormSubmit", {title: form.title.value, password: form.password?form.password.value:undefined} )
+        dispatch({type: "onCreateRoomFormSubmit", payload: {title: form.title.value, password: form.password?form.password.value:undefined}});
         form.password.value='';
         form.title.value='';
     }
