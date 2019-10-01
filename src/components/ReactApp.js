@@ -295,7 +295,8 @@ function stateReducer(state, action) {
                 ...state,
                 chat: {
                     ...state.chat,
-                    messages: [...action.payload.messages]
+                    messages: [...action.payload.messages, ...state.chat.messages],
+                    pageCount: state.chat.pageCount + 1
                 }
             }
         }
@@ -328,6 +329,19 @@ function stateReducer(state, action) {
                         id: state.chat.room.id,
                         text: state.chat.sendMessageForm.text
                     }
+                }
+            }
+        }
+        case 'MessageSended': {
+            return {
+                ...state,
+                chat: {
+                    ...state.chat,
+                    messages: [
+                        ...state.chat.messages,
+                        {...action.payload.messageModel}
+                    ],
+                    pageOffset: state.chat.pageOffset + 1
                 }
             }
         }

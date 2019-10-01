@@ -14,19 +14,20 @@ import { Actions } from "../Actions";
 import { api } from "../api/api";
 
 export function WebSocketEventHandler(dispatch=f=>f) {
-    return function({description, info}) {
-        switch(description) {
-            default: {
-                console.warn("Undefined WebSocket Event " + description)
-            }
-        }
+    return function(frame) {
+        // switch(description) {
+        //     default: {
+        //         console.warn("Undefined WebSocket Event " + description)
+        //     }
+        const {description, info} = JSON.parse(frame.body);
+        dispatch({type: description, payload: {...info}})
     }
 }
 
 export const Chat = () => {    
     const {state, dispatch} = useContext(AppContext);
     const {chat, ws} = state;
-    useEffect(function(){
+    useEffect(function(){ //hook for effect action
         switch(state._effect.type) {
             case 'joinRoom': {
                 api.joinRoom(
@@ -46,14 +47,19 @@ export const Chat = () => {
             }
         }
     }, [state._effect])
-    useEffect(function(){
+    useEffect(function(){ // hook for clearing up after changing room
         var subscription;
         const {room} = chat
         if (room && room.joined && !room.banned && room.id) {// subscribe and load first message page
             subscription = ws.client.subscribe("/topic/room/"+room.id, WebSocketEventHandler(dispatch))
             api.getMessagePage(
                 {roomId: room.id, page: 0, offset: 0},
-                messages => dispatch({type: "getMessagePage_success", payload: {messages: JSON.parse(messages)}}),
+                messages => dispatch({
+                    type: "getMessagePage_success", 
+                    payload: {
+                        messages: JSON.parse(messages).sort((a,b)=>a.id - b.id)
+                    }
+                }),
                 error => dispatch({type: "getMessagePage_error", payload: {error}})
             )
         }
@@ -63,14 +69,46 @@ export const Chat = () => {
             }
         }
     }, [chat.room])
+    // messageList div control
+    const messageListCol = useRef();
+    const prevMessageListState = useRef({page: 0, offset: 0, scrollHeight: 0, scrollTop: 0})
+    useEffect(function() {// hook for messageList div control. Very complex, if there something will broken, I would rewrite whole function again
+        const {page, offset, scrollHeight, scrollTop} = prevMessageListState.current;
+        if (chat.room && chat.room.id && messageListCol.current) {
+            if (chat.pageOffset > offset) {
+                if  (scrollHeight - scrollTop - messageListCol.current.clientHeight < 200) {
+                    messageListCol.current.scrollTop = messageListCol.current.scrollHeight - messageListCol.current.clientHeight;//scrollDown on message if client scrolled not much
+                }
+            }
+            if (chat.pageCount == 1) {
+                messageListCol.current.scrollTop = messageListCol.current.scrollHeight - messageListCol.current.clientHeight;//scrollDown on init room page
+            } else if (page && page < chat.pageCount) {
+                messageListCol.current.scrollTop = messageListCol.current.scrollHeight - scrollHeight;
+            }
+            messageListCol.current.onscroll = function() {
+                if (messageListCol.current.scrollTop == 0) {
+                    api.getMessagePage(
+                        {roomId: chat.room.id, page: chat.pageCount, offset: chat.pageOffset},
+                        messages=>dispatch({
+                            type: "getMessagePage_success",
+                            payload: {messages: JSON.parse(messages).sort((a,b)=>a.id-b.id)}
+                        }),
+                        error => dispatch({type: "getMessagePage_error", payload:{error}})
+                    )
+                }
+            }
+        }
+        if (messageListCol.current) {
+            prevMessageListState.current = {
+                page: chat.pageCount,
+                offset: chat.pageOffset,
+                scrollHeight: messageListCol.current.scrollHeight,
+                scrollTop: messageListCol.current.scrollTop
+            }
+        }
+    })
     const onJoinRoomFormSubmit = function({password}) {
         dispatch({type: 'onJoinRoomFormSubmit', payload: {password}});
-    }
-    const onSendMessageFormSubmit = function() {
-        dispatch({type: 'onSendMessageFormSubmit'});
-    }
-    const onSendMessageFormType = function({text}) {
-        dispatch({type: 'onSendMessageFormType', payload: {text}})
     }
     return (
         <React.Fragment>
@@ -81,7 +119,7 @@ export const Chat = () => {
                         <ChatHeader {...{title: chat.room.title, dispatch}}/>
                     </Row>
                     <Row style={{height: "80%"}}>
-                        <Col className="message-list" >
+                        <Col className="message-list" ref={col=>messageListCol.current = col}>
                             <MessageList {...{messages: chat.messages, login: state.login}} />
                         </Col>
                     </Row>
