@@ -16,6 +16,7 @@ import {useRef, useContext} from 'react';
 import { useRooms } from '../hooks/useRooms';
 import { AppContext } from './ReactApp';
 import { api } from '../api/api';
+import { Chat } from './Chat';
 
 export const Rooms = (/*{apiActions, dispatcher}*/) => {
     const {state, dispatch} = useContext(AppContext);
@@ -24,6 +25,20 @@ export const Rooms = (/*{apiActions, dispatcher}*/) => {
         api.getJoinedRooms({}, (joinedRooms)=>dispatch({type:'getJoinedRooms_success', payload:{joinedRooms: JSON.parse(joinedRooms)}}));
         api.getModeratedRooms({}, (moderatedRooms)=>dispatch({type:'getModeratedRooms_success', payload:{moderatedRooms: JSON.parse(moderatedRooms)}}));
     }, [])
+    useEffect(() => {
+        switch (state._effect.type) {
+            case 'loadRoom': {
+                api.loadRoom(
+                    state._effect.payload,
+                    room => dispatch({type: 'loadRoom_success', payload: {room: JSON.parse(room)}}),
+                    error => dispatch({type: 'loadRoom_error', payload: {error}})
+                )
+            }
+        }
+    }, [state._effect])
+    const onRoomClick = function(id) {
+        id != state.chat.room.id && dispatch({type: "onRoomClick", payload: {id}})
+    };
     return (
             <React.Fragment>
                 <Row>
@@ -48,7 +63,7 @@ export const Rooms = (/*{apiActions, dispatcher}*/) => {
                             </Accordion.Toggle>
                             <Accordion.Collapse eventKey="searchedRooms">
                                 <Card.Body>
-                                    <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: rooms.searchedRooms}} />
+                                    <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: rooms.searchedRooms, onRoomClick}} />
                                 </Card.Body>
                             </Accordion.Collapse>
                         </Card>
@@ -59,7 +74,7 @@ export const Rooms = (/*{apiActions, dispatcher}*/) => {
                         </Accordion.Toggle>
                         <Accordion.Collapse eventKey="joinedRooms">
                             <Card.Body>
-                                <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: rooms.joinedRooms}} />
+                                <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: rooms.joinedRooms, onRoomClick}} />
                             </Card.Body>
                         </Accordion.Collapse>
                     </Card>
@@ -69,7 +84,7 @@ export const Rooms = (/*{apiActions, dispatcher}*/) => {
                         </Accordion.Toggle>
                         <Accordion.Collapse eventKey="moderatedRooms">
                             <Card.Body>
-                                <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: rooms.moderatedRooms}}/>
+                                <RoomList style={{maxHeight: "40%", overflowY: "hidden"}} {...{rooms: rooms.moderatedRooms, onRoomClick}}/>
                             </Card.Body>
                         </Accordion.Collapse>
                     </Card>

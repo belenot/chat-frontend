@@ -36,14 +36,17 @@ export const initState = {
         show: false,
         room: {id: undefined, title: undefined, banned: undefined, joined: undefined},
         messages: [],
-        ws: {client: null, subscription: ''},
         pageCount: 0,
         pageOffset: 0,
-        prevRoom: null,
         sendMessageForm: {
             text: ''
+        },
+        // server must throw error when client can not join
+        joinRoomForm: {
+            error: ''
         }
     },
+    ws: {client: null, subscription: ''},
     _effect: {type:'', payload: null}
 }
 
@@ -201,6 +204,133 @@ function stateReducer(state, action) {
                 }
             }
         }
+        case 'onRoomClick': {
+            return {
+                ...state,
+                _effect: {
+                            type: 'loadRoom',
+                            payload: action.payload
+                        }
+            }
+        }
+        case 'loadRoom_success': {
+            return {
+                ...state,
+                chat: {
+                    ...state.chat,
+                    show: true,
+                    room: action.payload.room,
+                    messages: [],
+                    pageCount: 0,
+                    pageOffset: 0
+                }
+            }
+        }
+        case 'onJoinRoomFormSubmit': {
+            return {
+                ...state,
+                _effect: {
+                    type: 'joinRoom',
+                    payload: action.payload
+                }
+            }
+        }
+        case 'joinRoom_success': {
+            return {
+                ...state,
+                rooms: {
+                    ...state.rooms,
+                    joinedRooms: [
+                        {
+                            id: action.payload.room.id,
+                            title: action.payload.room.title
+                        },
+                        ...state.rooms.joinedRooms
+                    ],
+                    roomsGroups: {
+                        ...state.rooms.roomsGroups,
+                        activeKey: 'joinedRooms'
+                    }
+                },
+                chat: {
+                    ...state.chat,
+                    room: {...action.payload.room}
+                }
+            }
+        }
+        case 'joinRoom_error': {
+            return {
+                ...state,
+                chat: {
+                    ...state.chat,
+                    joinRoomForm: {
+                        error: action.payload.error
+                    }
+                }
+            }
+        }
+        case 'onLeaveBtnClick': {
+            return {
+                ...state,
+                _effect: {
+                    type: 'leaveRoom',
+                    payload: {}
+                }
+            }
+        }
+        case 'leaveRoom': {
+            return {
+                ...state,
+                chat: {
+                    ...initState.chat
+                },
+                rooms: {
+                    ...state.rooms,
+                    joinedRooms: [...state.rooms.joinedRooms.filter(r=>r.id != state.chat.room.id)]
+                }
+            }
+        }
+        case 'getMessagePage_success': {
+            return {
+                ...state,
+                chat: {
+                    ...state.chat,
+                    messages: [...action.payload.messages]
+                }
+            }
+        }
+        case 'onSendMessageFormType': {
+            return {
+                ...state,
+                chat: {
+                    ...state.chat,
+                    sendMessageForm: {
+                        ...state.chat.sendMessageForm,
+                        text: action.payload.text
+                    }
+                }
+            }
+        }
+        case 'onSendMessageFormSubmit': {
+            return {
+                ...state,
+                chat: {
+                    ...state.chat,
+                    sendMessageForm: {
+                        ...state.chat.sendMessageForm,
+                        text: ''
+                    }
+                },
+                _effect: {
+                    type: 'sendMessage',
+                    payload: {
+                        client: state.ws.client,
+                        id: state.chat.room.id,
+                        text: state.chat.sendMessageForm.text
+                    }
+                }
+            }
+        }
         default: {
             console.warn("Can't find handler for " + action.type);
             return state;
@@ -210,7 +340,15 @@ function stateReducer(state, action) {
 export const AppContext = createContext(null);
 
 export const ReactApp = ({login, wsClient}) => {
-    const [state, dispatch] = useReducer(stateReducer, {...initState, login});
+    const [state, dispatch] = useReducer(stateReducer, {
+                                                        ...initState, 
+                                                        login, 
+                                                        ws: {
+                                                            ...initState.ws,
+                                                            client: wsClient
+                                                        }
+                                                    }
+                                        );
     useEffect(()=>{dispatcher.reg(dispatch)}, [])
     return (
         <AppContext.Provider value={{state, dispatch}} >
@@ -223,9 +361,9 @@ export const ReactApp = ({login, wsClient}) => {
                     <Col className="rooms">
                         <Rooms xs="3" style={{height: "100%"}} />
                     </Col> 
-                    {/* <Col xs="9" style={{height: "100%"}}>
-                        <Chat {...{apiActions, wsEventActions, dispatcher, wsClient}}/>
-                    </Col> */}
+                    <Col xs="9" style={{height: "100%"}}>
+                        <Chat />
+                    </Col>
                 </Row>
             </Container>
         </AppContext.Provider>

@@ -1,7 +1,7 @@
 import {Room} from './Room';
 
-export const RoomList = ({rooms=[], roomsActions}) => (
+export const RoomList = ({rooms=[], onRoomClick=f=>f}) => (
     <div className="room-list">
-        {rooms.map(room => <Room key={room.id} room={room} /*loadRoom={roomsActions.bake("onRoomClick", {id: room.id})}*//>)}
+        {rooms.map(room => <Room key={room.id} {...{room, onRoomClick: ()=>onRoomClick(room.id)}} />)}
     </div>
 )
