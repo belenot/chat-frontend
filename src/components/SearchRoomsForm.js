@@ -16,11 +16,9 @@ export const SearchRoomsForm = () => {
     }
     useEffect(()=>{
         if (state._effect.type=='searchRooms') {
-            api.searchRooms(
-                state._effect.payload,
-                (rooms) => dispatch({type:'searchRooms_success', payload: {rooms: JSON.parse(rooms)}}),
-                (error) => dispatch({type: 'searchRooms_error', payload: {error}})
-                )
+            api.searchRooms(state._effect.payload)
+                .then(rooms=>dispatch({type:'searchRooms_success', payload: {rooms}}))
+                .catch(error => dispatch({type: 'searchRooms_error', payload: {error: error.message}}))
         }
     },[state._effect])
     return (

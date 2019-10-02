@@ -12,11 +12,9 @@ export const CreateRoomForm = () => {
     const {error} = state.rooms.createRoomForm;
     useEffect(()=>{
         if(state._effect.type == 'createRoom') {
-            api.createRoom(
-                state._effect.payload, 
-                (room) => dispatch({type:'createRoom_success', payload: {room: JSON.parse(room)}}),
-                (error) => dispatch({type:'createRoom_error', payload: {error}})
-            )
+            api.createRoom(state._effect.payload)
+            .then(room => dispatch({type:'createRoom_success', payload: {room}}))
+            .catch(error=>dispatch({type:'createRoom_error', payload:{error:error.message}}))
         }
     }, [state._effect])
     let form={isPassword: false};

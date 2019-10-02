@@ -22,17 +22,17 @@ export const Rooms = (/*{apiActions, dispatcher}*/) => {
     const {state, dispatch} = useContext(AppContext);
     const {rooms} = state;
     useEffect(()=> {
-        api.getJoinedRooms({}, (joinedRooms)=>dispatch({type:'getJoinedRooms_success', payload:{joinedRooms: JSON.parse(joinedRooms)}}));
-        api.getModeratedRooms({}, (moderatedRooms)=>dispatch({type:'getModeratedRooms_success', payload:{moderatedRooms: JSON.parse(moderatedRooms)}}));
+        api.getJoinedRooms()
+            .then((joinedRooms)=>dispatch({type:'getJoinedRooms_success', payload:{joinedRooms}}))
+            .then(()=>api.getModeratedRooms())
+            .then((moderatedRooms)=>dispatch({type:'getModeratedRooms_success', payload:{moderatedRooms}}));
     }, [])
     useEffect(() => {
         switch (state._effect.type) {
             case 'loadRoom': {
-                api.loadRoom(
-                    state._effect.payload,
-                    room => dispatch({type: 'loadRoom_success', payload: {room: JSON.parse(room)}}),
-                    error => dispatch({type: 'loadRoom_error', payload: {error}})
-                )
+                api.loadRoom(state._effect.payload)
+                    .then(room=>dispatch({type: 'loadRoom_success', payload: {room}}))
+                    .catch(error=>dispatch({type: 'loadRoom_error', payload: {error:error.message}}))
             }
         }
     }, [state._effect])

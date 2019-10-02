@@ -290,13 +290,44 @@ function stateReducer(state, action) {
                 }
             }
         }
+        case 'onRoomChange': {
+            return {
+                ...state,
+                chat: {
+                    ...state.chat,
+                    pageCount: 0,
+                    pageOffset: 0
+                },
+                _effect: {
+                    type: 'getMessagePage',
+                    payload: {
+                        roomId: state.chat.room.id,
+                        page: 0,
+                        offset: 0
+                    }
+                }
+            }
+        }
+        case 'onMessageListScrollTop': {
+            return {
+                ...state,
+                _effect: {
+                    type: 'getMessagePage',
+                    payload: {
+                        roomId: state.chat.room.id, 
+                        page: state.chat.pageCount, 
+                        offset: state.chat.pageOffset
+                    }
+                }
+            }
+        }
         case 'getMessagePage_success': {
             return {
                 ...state,
                 chat: {
                     ...state.chat,
                     messages: [...action.payload.messages, ...state.chat.messages],
-                    pageCount: state.chat.pageCount + 1
+                    pageCount: action.payload.messages.length?state.chat.pageCount + 1:state.chat.pageCount
                 }
             }
         }

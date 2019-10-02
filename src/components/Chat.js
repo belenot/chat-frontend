@@ -27,14 +27,15 @@ export function WebSocketEventHandler(dispatch=f=>f) {
 export const Chat = () => {    
     const {state, dispatch} = useContext(AppContext);
     const {chat, ws} = state;
+    const messageListCol = useRef();
+    // const prevMessageListState = useRef({page: 0, offset: 0, scrollHeight: 0, scrollTop: 0})
+    // const messagesLength = useRef(0);
     useEffect(function(){ //hook for effect action
         switch(state._effect.type) {
             case 'joinRoom': {
-                api.joinRoom(
-                    {id: state.chat.room.id, ...state._effect.payload},
-                    room => dispatch({type: 'joinRoom_success', payload: {room: JSON.parse(room)}}),
-                    error => dispatch({type: 'joinRoom_error', payload: {error}})
-                )
+                api.joinRoom({id: state.chat.room.id, ...state._effect.payload})
+                    .then(room => dispatch({type: 'joinRoom_success', payload: {room}}))
+                    .catch(error => dispatch({type: 'joinRoom_error', payload: {error: error.message}}))
                 break;
             }
             case 'sendMessage': {
@@ -44,6 +45,13 @@ export const Chat = () => {
             case 'leaveRoom': {
                 api.leaveRoom({id: state.chat.room.id});
                 dispatch({type: 'leaveRoom'});
+                break;
+            }
+            case 'getMessagePage': {
+                api.getMessagePage({...state._effect.payload})
+                        .then(messages=>dispatch({type: "getMessagePage_success",payload: {messages: messages.sort((a,b)=>a.id-b.id)}}))
+                        .catch(error => dispatch({type: "getMessagePage_error", payload:{error:error.message}}))
+                break;
             }
         }
     }, [state._effect])
@@ -52,16 +60,7 @@ export const Chat = () => {
         const {room} = chat
         if (room && room.joined && !room.banned && room.id) {// subscribe and load first message page
             subscription = ws.client.subscribe("/topic/room/"+room.id, WebSocketEventHandler(dispatch))
-            api.getMessagePage(
-                {roomId: room.id, page: 0, offset: 0},
-                messages => dispatch({
-                    type: "getMessagePage_success", 
-                    payload: {
-                        messages: JSON.parse(messages).sort((a,b)=>a.id - b.id)
-                    }
-                }),
-                error => dispatch({type: "getMessagePage_error", payload: {error}})
-            )
+            dispatch({type:'onRoomChange'})
         }
         return function(){
             if (subscription) {
@@ -69,44 +68,36 @@ export const Chat = () => {
             }
         }
     }, [chat.room])
-    // messageList div control
-    const messageListCol = useRef();
-    const prevMessageListState = useRef({page: 0, offset: 0, scrollHeight: 0, scrollTop: 0})
-    useEffect(function() {// hook for messageList div control. Very complex, if there something will broken, I would rewrite whole function again
-        const {page, offset, scrollHeight, scrollTop} = prevMessageListState.current;
-        if (chat.room && chat.room.id && messageListCol.current) {
-            if (chat.pageOffset > offset) {
-                if  (scrollHeight - scrollTop - messageListCol.current.clientHeight < 200) {
-                    messageListCol.current.scrollTop = messageListCol.current.scrollHeight - messageListCol.current.clientHeight;//scrollDown on message if client scrolled not much
-                }
-            }
-            if (chat.pageCount == 1) {
-                messageListCol.current.scrollTop = messageListCol.current.scrollHeight - messageListCol.current.clientHeight;//scrollDown on init room page
-            } else if (page && page < chat.pageCount) {
-                messageListCol.current.scrollTop = messageListCol.current.scrollHeight - scrollHeight;
-            }
-            messageListCol.current.onscroll = function() {
-                if (messageListCol.current.scrollTop == 0) {
-                    api.getMessagePage(
-                        {roomId: chat.room.id, page: chat.pageCount, offset: chat.pageOffset},
-                        messages=>dispatch({
-                            type: "getMessagePage_success",
-                            payload: {messages: JSON.parse(messages).sort((a,b)=>a.id-b.id)}
-                        }),
-                        error => dispatch({type: "getMessagePage_error", payload:{error}})
-                    )
-                }
-            }
-        }
+    const messagePage = useRef({offset: 0, count: 0})
+    useEffect(function(){
         if (messageListCol.current) {
-            prevMessageListState.current = {
-                page: chat.pageCount,
-                offset: chat.pageOffset,
-                scrollHeight: messageListCol.current.scrollHeight,
-                scrollTop: messageListCol.current.scrollTop
+            const {scrollHeight, scrollTop, clientHeight} = messageListCol.current;
+            if (scrollHeight - scrollTop - clientHeight < 200) {
+                messageListCol.current.scrollTop = scrollHeight - clientHeight;
             }
         }
-    })
+    }, [chat.pageOffset])
+    const scrollHeight = useRef(0);
+    useEffect(function() {
+        if (messageListCol.current) {
+            if (chat.pageCount > 0 && scrollHeight.current){
+                messageListCol.current.scrollTop = messageListCol.current.scrollHeight - scrollHeight.current;
+            } else if (chat.pageCount == 1) {
+                messageListCol.current.scrollTop = messageListCol.current.scrollHeight - messageListCol.current.clientHeight;
+            }
+            scrollHeight.current = messageListCol.current.scrollHeight;
+        }
+    }, [chat.pageCount])
+    useEffect(()=>{
+        if(messageListCol.current) {
+            messageListCol.current.onscroll = function() {
+                if (messageListCol.current.scrollTop == 0 && chat.messages.length) {
+                    dispatch({type:'onMessageListScrollTop'})
+                }
+            }
+        }
+        return () => {if (messageListCol.current) messageListCol.current.onscroll = null;}
+    }, [chat.room, chat.messages])
     const onJoinRoomFormSubmit = function({password}) {
         dispatch({type: 'onJoinRoomFormSubmit', payload: {password}});
     }
