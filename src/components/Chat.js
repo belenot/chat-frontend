@@ -53,6 +53,18 @@ export const Chat = () => {
                         .catch(error => dispatch({type: "getMessagePage_error", payload:{error:error.message}}))
                 break;
             }
+            case 'ban': {
+                api.ban({...state._effect.payload})
+                break;
+            }
+            case 'initRoom': {
+                api.getMessagePage({...state._effect.payload, page: 0, offset: 0})
+                        .then(messages=>dispatch({type: "getMessagePage_success",payload: {messages: messages.sort((a,b)=>a.id-b.id)}}))
+                        .catch(error => dispatch({type: "getMessagePage_error", payload:{error:error.message}}))
+                        .then(()=>api.getClients({id: state._effect.payload.roomId}))
+                        .then(clients=>dispatch({type: "getClients_success", payload: {clients}}))
+                        .catch(error=>dispatch({type: "getClients_error", payload: {error: error.message}}))
+            }
         }
     }, [state._effect])
     useEffect(function(){ // hook for clearing up after changing room
@@ -101,13 +113,14 @@ export const Chat = () => {
     const onJoinRoomFormSubmit = function({password}) {
         dispatch({type: 'onJoinRoomFormSubmit', payload: {password}});
     }
+    const moderated = chat.room && [...state.rooms.moderatedRooms].some(room=>room.id == chat.room.id);
     return (
         <React.Fragment>
             {chat.room.id?//loaded?
             chat.room.joined?//joined?
                 <React.Fragment>
                     <Row className="chat-header" style={{height: "10%", alignContent: "center"}}>
-                        <ChatHeader {...{title: chat.room.title, dispatch}}/>
+                        <ChatHeader {...{title: chat.room.title, clients: chat.clients, moderated, dispatch}}/>
                     </Row>
                     <Row style={{height: "80%"}}>
                         <Col className="message-list" ref={col=>messageListCol.current = col}>

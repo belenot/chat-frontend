@@ -25,7 +25,7 @@ export const api = {
         body: JSON.stringify(updatedClient)
     }).then(handleErrors),
     deleteClient: () => fetch("/client/delete", {method: 'POST', headers:{...csrf()}}).then(handleErrors),
-    getClients: ({id}) => fetch(`/room/${id}/clients`).then(handleErrors),
+    getClients: ({id}) => fetch(`/room/${id}/clients`).then(handleErrors).then(response=>response.json()),
     logout: () => fetch("/logout", {method:'POST', headers:{...csrf()}}).then(handleErrors),    
     searchRooms: ({title}) => fetch(`/room/search?title=${encodeURIComponent(title&&"%"+title+"%"||"")}`, {
         method: "POST",

@@ -20,8 +20,8 @@ export const initState = {
     rooms: {
         joinedRooms: [],
         moderatedRooms: [],
-        _joinedInited: false,
-        _moderatedInited: false,
+        // _joinedInited: false,
+        // _moderatedInited: false,
         searchedRooms: [],
         createRoomForm: {activeKey: '', error: undefined},
         searchRoomsForm: {
@@ -36,6 +36,7 @@ export const initState = {
         show: false,
         room: {id: undefined, title: undefined, banned: undefined, joined: undefined},
         messages: [],
+        clients: [],
         pageCount: 0,
         pageOffset: 0,
         sendMessageForm: {
@@ -44,6 +45,9 @@ export const initState = {
         // server must throw error when client can not join
         joinRoomForm: {
             error: ''
+        },
+        roomClientsCard: {
+            show: false
         }
     },
     ws: {client: null, subscription: ''},
@@ -298,12 +302,20 @@ function stateReducer(state, action) {
                     pageCount: 0,
                     pageOffset: 0
                 },
+                // _effect: {
+                //     type: 'getMessagePage',
+                //     payload: {
+                //         roomId: state.chat.room.id,
+                //         page: 0,
+                //         offset: 0
+                //     }
+                // },
                 _effect: {
-                    type: 'getMessagePage',
+                    type: 'initRoom',
                     payload: {
                         roomId: state.chat.room.id,
-                        page: 0,
-                        offset: 0
+                        // page: 0,
+                        // offset: 0
                     }
                 }
             }
@@ -328,6 +340,27 @@ function stateReducer(state, action) {
                     ...state.chat,
                     messages: [...action.payload.messages, ...state.chat.messages],
                     pageCount: action.payload.messages.length?state.chat.pageCount + 1:state.chat.pageCount
+                }
+            }
+        }
+        case 'getClients_success': {
+            return {
+                ...state,
+                chat: {
+                    ...state.chat,
+                    clients: [...action.payload.clients]
+                }
+            }
+        }
+        case 'onBanBtnClick': {
+            return {
+                ...state,
+                _effect: {
+                    type: 'ban',
+                    payload: {
+                        roomId: state.chat.room.id,
+                        clientId: action.payload.clientId
+                    }
                 }
             }
         }
